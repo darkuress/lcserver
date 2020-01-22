@@ -1,0 +1,102 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
+        <title>My scratchboard page</title>
+    </head>
+
+    <body>
+        <nav class="navbar navbar-inverse">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              <a class="navbar-brand" href="#">My scratchpad</a>
+            </div>
+            <ul class="nav navbar-nav navbar-right">
+                {% if current_user.is_authenticated %}
+                    <li><a href="{{ url_for('logout') }}">Log out</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('login') }}">Log in</a></li>
+                {% endif %}
+            </ul>
+          </div>
+        </nav>
+
+
+        <div class="container">
+            <table>
+            <tr>
+                <th width = "50">ID</th>
+                <th width = "300">Licence Key</th>
+                <th width = "400">Initiated</th>
+                <th width = "400">Expiry</th>
+                <th width = "100">User</th>
+                <th width = "300">Email</th>
+                <th width = "50">Delete</th>
+            <tr>
+            {% for comment in comments %}
+                <tr>
+                    <th>{{ comment.id }}</th>
+                    <th>{{ comment.license }}</th>
+                    <th>
+                        <small>
+                        {% if comment.initiated %}
+                            {{ comment.initiated.strftime("%d %B %Y at %H:%M") }}
+                        {% else %}
+                            at an unknown time
+                        {% endif %}
+                        </small>
+                    </th>
+                    <th>
+                        <small>
+                        {% if comment.expiry %}
+                            {{ comment.expiry.strftime("%d %B %Y at %H:%M") }}
+                        {% else %}
+                            at an unknown time
+                        {% endif %}
+                        </small>
+                    </th>
+                    <th>
+                        {% if comment.user %}
+                            {{ comment.user.username }}
+                        {% else %}
+                            anonymous
+                        {% endif %}
+                    </th>
+                    <th>
+                        {% if comment.user %}
+                            {{ comment.user.email }}
+                        {% else %}
+                            Null
+                        {% endif %}
+                    </th>
+                    <th>
+                        <form action="." method="POST">
+                        <input type="hidden" name = "id" value = {{comment.id}}>
+                        <input type="submit" class="btn btn-success" value="x">
+                        </form>
+                    </th>
+                </tr>
+            {% endfor %}
+            </table>
+
+            {% if current_user.is_authenticated %}
+                <div class="row">
+                    <form action="." method="POST">
+                        <textarea name="contents" placeholder="Enter a comment" class="form-control"></textarea>
+                        <input type="submit" class="btn btn-success" value="Post comment">
+                    </form>
+                </div>
+            {% endif %}
+
+        </div><!-- /.container -->
+    </body>
+</html>
