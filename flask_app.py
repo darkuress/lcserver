@@ -85,14 +85,11 @@ def index():
 
 @app.route("/usersTable", methods=["GET", "POST"])
 def usersTable():
-    print('............11')
     print(request.form.to_dict())
     if request.method == "GET":
         return render_template("user_page.html", comments=User.query.all())
     elif "id" in request.form.to_dict():
-        print('..............')
         comment = User.query.filter_by(id=int(request.form["id"])).first()
-        print('..............')
         print(comment)
         db.session.delete(comment)
         db.session.commit()
@@ -169,6 +166,15 @@ def addLicense(user, email):
     """
     days = 30
     dbUser = User.query.filter_by(username = user).first()
+    dbEmail = User.query.filter_by(email = email).first()
+
+    if dbUser:
+        #invalid user
+        return {'result' : 1}
+    if dbEmail:
+        #invalid email
+        return {'result' : 2}
+
     if not dbUser:
         userData = User(username = user,email = email,trialused = True)
         db.session.add(userData)
@@ -176,6 +182,9 @@ def addLicense(user, email):
         dbUser = User.query.filter_by(username = user).first()
 
     license = generateKey()
+    if AnimBuddyDaya.query.filter_by(license = license):
+        license = generateKey()
+
     data = AnimBuddyData(license=license,
                          expiry=datetime.datetime.now() + datetime.timedelta(days=days))
     db.session.add(data)
@@ -200,27 +209,6 @@ def validate(key):
         return {'result' : 'Valid'}
     elif (license.expiry - today).days + 1 < 0:
         return {'result' : 'Expired'}
-
-def oldvalidate(key):
-    """
-    key validation
-    """
-    today = datetime.date.today()
-    x = AnimBuddyData.query.filter_by(license = key).first()
-    #licenses = [x.license for x in AnimBuddyData.query.all()]
-    licenses = {'1111-2222-3333-4444':{'type':'permanent', 'expiryDate': datetime.date(2080, 12, 20)}, 'owner' : 'beaverhouse',
-                '1111-2222-3333-4446':{'type':'monthly',   'expiryDate': datetime.date(2019, 12, 5),   'owner' : 'Me'},
-                '1111-2222-3333-4445':{'type':'business',  'expiryDate': datetime.date(2080, 12, 7)},  'owner' : 'ho'}
-
-    if key in licenses.keys():
-        if (licenses[key]['expiryDate'] - today).days >= 0:
-            return {'result' : 'Valid'}
-        elif (licenses[key]['expiryDate'] - today).days < 0:
-            return {'result' : 'Expired'}
-
-    else:
-        return {'result' : 'Invalid'}
-
 
 @app.route('/license/<string:key>', methods=['GET'])
 def returnOne(key):
