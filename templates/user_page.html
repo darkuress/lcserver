@@ -37,17 +37,17 @@
                 <th width = "50">ID</th>
                 <th width = "300">username</th>
                 <th width = "400">email</th>
-                <th with  = "300">trial</th>
-                <th width = "50">Delete</th>
+                <th width = "200">trial</th>
+                <th width = "100">Delete</th>
             <tr>
             {% for comment in comments %}
                 <tr>
                     <th>{{ comment.id }}</th>
                     <th>{{ comment.username }}</th>
                     <th>{{ comment.email }}</th>
-                    <th></th>
+                    <th>{{ comment.trialused }}</th>
                     <th>
-                        <form action="." method="POST">
+                        <form action="/usersTable" method="POST">
                         <input type="hidden" name = "id" value = {{comment.id}}>
                         <input type="submit" class="btn btn-success" value="x">
                         </form>
@@ -58,7 +58,7 @@
 
             {% if current_user.is_authenticated %}
                 <div class="row">
-                    <form action="." method="POST">
+                    <form action="/usersTable" method="POST">
                         <textarea name="contents" placeholder="Enter a comment" class="form-control"></textarea>
                         <input type="submit" class="btn btn-success" value="Post comment">
                     </form>

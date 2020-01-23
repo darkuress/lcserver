@@ -83,10 +83,22 @@ def index():
         db.session.commit()
     return redirect(url_for('index'))
 
-@app.route("/users", methods=["GET", "POST"])
+@app.route("/usersTable", methods=["GET", "POST"])
 def usersTable():
+    print('............11')
+    print(request.form.to_dict())
     if request.method == "GET":
         return render_template("user_page.html", comments=User.query.all())
+    elif "id" in request.form.to_dict():
+        print('..............')
+        comment = User.query.filter_by(id=int(request.form["id"])).first()
+        print('..............')
+        print(comment)
+        db.session.delete(comment)
+        db.session.commit()
+    else:
+        print(request.form.to_dict())
+    return redirect(url_for("usersTable"))
 
 @app.route("/login/", methods=["GET", "POST"])
 def login():
@@ -155,13 +167,10 @@ db.session.commit()
 def addLicense(user, email):
     """
     """
-    #print request.args.get('user')
-    #print request.args.get('email')
-
     days = 30
     dbUser = User.query.filter_by(username = user).first()
     if not dbUser:
-        userData = User(username = user,email = email)
+        userData = User(username = user,email = email,trialused = True)
         db.session.add(userData)
         db.session.commit()
         dbUser = User.query.filter_by(username = user).first()
@@ -176,7 +185,7 @@ def addLicense(user, email):
     updatedData.user = dbUser
     db.session.commit()
 
-    return {'result' : 'Generated'}
+    return {'result' : license}
 
 def validate(key):
     """
